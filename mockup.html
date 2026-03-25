@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Bank - Prototipo por Clúster</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .phone-container {
+            width: 375px;
+            height: 750px;
+            background: #fff;
+            border: 12px solid #1a1a1a;
+            border-radius: 45px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .status-bar {
+            height: 44px;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Animaciones */
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Estilos específicos por cluster */
+        .theme-0 { --brand: #6366f1; --bg: #0f172a; --text: #f8fafc; } /* Joven/Moderno */
+        .theme-1 { --brand: #b45309; --bg: #fffcf0; --text: #1e293b; } /* Senior/Tradicional */
+        .theme-2 { --brand: #0f766e; --bg: #f8fafc; --text: #0f172a; } /* Profesional/Analítico */
+        .theme-3 { --brand: #1d4ed8; --bg: #ffffff; --text: #1e293b; } /* Familiar/Estable */
+
+        .btn-action {
+            transition: all 0.2s;
+        }
+        .btn-action:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center py-10">
+
+    <!-- Selector de Persona (Para demo) -->
+    <div class="mb-8 flex flex-wrap justify-center gap-2 max-w-2xl px-4">
+        <button onclick="switchCluster(0)" class="px-4 py-2 bg-indigo-600 text-white rounded-full text-sm font-bold shadow-md hover:bg-indigo-700">C0: Joven Soltero</button>
+        <button onclick="switchCluster(1)" class="px-4 py-2 bg-amber-700 text-white rounded-full text-sm font-bold shadow-md hover:bg-amber-800">C1: Senior Casado</button>
+        <button onclick="switchCluster(2)" class="px-4 py-2 bg-teal-700 text-white rounded-full text-sm font-bold shadow-md hover:bg-teal-800">C2: Profesional Divorciado</button>
+        <button onclick="switchCluster(3)" class="px-4 py-2 bg-blue-700 text-white rounded-full text-sm font-bold shadow-md hover:bg-blue-800">C3: Profesional Casado</button>
+    </div>
+
+    <!-- Contenedor del Móvil -->
+    <div id="phoneFrame" class="phone-container theme-0">
+        <!-- Status Bar -->
+        <div class="status-bar" id="statusBar">
+            <span id="currentTime">09:41</span>
+            <div class="flex gap-1 items-center">
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <!-- Contenido Dinámico -->
+        <div id="appContent" class="h-full overflow-y-auto pb-20">
+            <!-- Cargado por JS -->
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="absolute bottom-0 w-full h-16 bg-white border-t border-gray-100 flex justify-around items-center px-4">
+            <i class="fas fa-home text-gray-400"></i>
+            <i class="fas fa-chart-pie text-gray-400"></i>
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white" id="navCenterBtn">
+                <i class="fas fa-plus"></i>
+            </div>
+            <i class="fas fa-credit-card text-gray-400"></i>
+            <i class="fas fa-user text-gray-400"></i>
+        </div>
+    </div>
+
+    <script>
+        const clusters = {
+            0: {
+                name: "Alex",
+                title: "¡Hola, Alex! 🚀",
+                subtitle: "Tu balance está subiendo.",
+                balance: "1.661,53 €",
+                primaryColor: "#6366f1",
+                bgColor: "#0f172a",
+                textColor: "#f8fafc",
+                cardColor: "bg-indigo-600/20 border-indigo-500/30",
+                message: "Ahorraste 12€ hoy con el redondeo de compras. ¡Sigue así!",
+                products: [
+                    { icon: "fa-bolt", title: "Micro-inversión", desc: "Invierte tu calderilla en IA" },
+                    { icon: "fa-plane", title: "Plan Viaje", desc: "65% completado para Japón" }
+                ],
+                tone: "Casual/Gaming"
+            },
+            1: {
+                name: "Sr. Martínez",
+                title: "Bienvenido, Sr. Martínez",
+                subtitle: "Su patrimonio está protegido.",
+                balance: "2.587,30 €",
+                primaryColor: "#b45309",
+                bgColor: "#fffcf0",
+                textColor: "#1e293b",
+                cardColor: "bg-white border-amber-100",
+                message: "Su depósito a plazo genera rentabilidad estable. ¿Desea hablar con su gestor?",
+                products: [
+                    { icon: "fa-shield-halved", title: "Renta Segura", desc: "Fondo de bajo riesgo" },
+                    { icon: "fa-phone-volume", title: "Gestor Personal", desc: "Llamada directa ahora" }
+                ],
+                tone: "Formal/Seguro"
+            },
+            2: {
+                name: "Elena",
+                title: "Panel de Control",
+                subtitle: "Gestión financiera profesional.",
+                balance: "1.707,96 €",
+                primaryColor: "#0f766e",
+                bgColor: "#f8fafc",
+                textColor: "#0f172a",
+                cardColor: "bg-white border-gray-200 shadow-sm",
+                message: "Análisis mensual listo: Ha optimizado sus gastos un 15% respecto al mes anterior.",
+                products: [
+                    { icon: "fa-chart-column", title: "Analítica Pro", desc: "Ver desglose de gastos" },
+                    { icon: "fa-file-invoice-dollar", title: "Plan Fiscal", desc: "Deducciones para este año" }
+                ],
+                tone: "Analítico/Eficiente"
+            },
+            3: {
+                name: "Fam. García",
+                title: "Hola, Carlos",
+                subtitle: "Planificando el futuro juntos.",
+                balance: "1.736,31 €",
+                primaryColor: "#1d4ed8",
+                bgColor: "#ffffff",
+                textColor: "#1e293b",
+                cardColor: "bg-blue-50 border-blue-100",
+                message: "Pre-aprobación de mejora de hipoteca disponible. Asegure el futuro de sus hijos.",
+                products: [
+                    { icon: "fa-house", title: "Hipotecas Plus", desc: "Mejore sus condiciones" },
+                    { icon: "fa-graduation-cap", title: "Plan Estudios", desc: "Ahorro para la universidad" }
+                ],
+                tone: "Familiar/Aspiracional"
+            }
+        };
+
+        function switchCluster(id) {
+            const data = clusters[id];
+            const frame = document.getElementById('phoneFrame');
+            const content = document.getElementById('appContent');
+            const navCenter = document.getElementById('navCenterBtn');
+            const statusBar = document.getElementById('statusBar');
+
+            // Actualizar Colores
+            frame.style.backgroundColor = data.bgColor;
+            frame.style.color = data.textColor;
+            navCenter.style.backgroundColor = data.primaryColor;
+            statusBar.style.color = id == 0 ? "#fff" : "#000";
+
+            // Renderizar contenido
+            content.innerHTML = `
+                <div class="px-6 pt-8 fade-in">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h1 class="text-2xl font-bold">${data.title}</h1>
+                            <p class="text-sm opacity-70">${data.subtitle}</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-gray-200 border-2 overflow-hidden" style="border-color: ${data.primaryColor}">
+                             <img src="https://ui-avatars.com/api/?name=${data.name}&background=random" alt="Avatar">
+                        </div>
+                    </div>
+
+                    <!-- Card de Balance -->
+                    <div class="p-6 rounded-3xl mb-6 border ${data.cardColor}">
+                        <p class="text-xs uppercase tracking-wider opacity-60 mb-1">Balance Total</p>
+                        <h2 class="text-3xl font-extrabold mb-4">${data.balance}</h2>
+                        <div class="flex gap-2">
+                             <button class="flex-1 py-2 rounded-xl text-xs font-bold text-white shadow-sm btn-action" style="background: ${data.primaryColor}">Enviar</button>
+                             <button class="flex-1 py-2 rounded-xl text-xs font-bold bg-white/10 border border-current btn-action">Añadir</button>
+                        </div>
+                    </div>
+
+                    <!-- Mensaje Personalizado -->
+                    <div class="mb-8">
+                        <p class="text-sm italic opacity-80 border-l-4 pl-4" style="border-color: ${data.primaryColor}">
+                            "${data.message}"
+                        </p>
+                    </div>
+
+                    <!-- Productos Recomendados -->
+                    <h3 class="text-lg font-bold mb-4">Recomendado para ti</h3>
+                    <div class="grid grid-cols-1 gap-4">
+                        ${data.products.map(p => `
+                            <div class="p-4 rounded-2xl border border-gray-100 bg-white flex items-center gap-4 text-slate-800 shadow-sm btn-action cursor-pointer">
+                                <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white" style="background: ${data.primaryColor}">
+                                    <i class="fas ${p.icon} text-lg"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm">${p.title}</h4>
+                                    <p class="text-xs text-gray-500">${p.desc}</p>
+                                </div>
+                                <i class="fas fa-chevron-right ml-auto text-gray-300"></i>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <!-- Tono de App (Debug Info) -->
+                    <div class="mt-8 pt-8 border-t border-gray-100 opacity-30 text-[10px] uppercase text-center">
+                        Experiencia Optimizada: Cluster ${id} | Tono: ${data.tone}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Reloj en tiempo real
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('currentTime').innerText = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Iniciar con Cluster 0
+        switchCluster(0);
+    </script>
+</body>
+</html>
