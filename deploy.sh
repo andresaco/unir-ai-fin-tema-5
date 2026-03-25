@@ -9,13 +9,11 @@ echo "🚀 Iniciando publicación a GitHub Pages..."
 
 # Configuración
 BRANCH_ACTUAL=$(git rev-parse --abbrev-ref HEAD)
-OUTPUT_DIR="dist"
+TEMP_FILE="mockup.html.tmp"
 
-# Crear directorio temporal
-mkdir -p $OUTPUT_DIR
-cp mockup.html $OUTPUT_DIR/index.html
-
-echo "📦 Archivos preparados en $OUTPUT_DIR/"
+# Guardar el archivo en un temporal antes de cambiar de rama
+cp mockup.html $TEMP_FILE
+echo "📦 Archivo temporal preparado"
 
 # Inicializar rama gh-pages si no existe
 if git rev-parse --verify gh-pages > /dev/null 2>&1; then
@@ -35,7 +33,7 @@ git checkout gh-pages
 find . -maxdepth 1 -not -name '.git' -not -name '.gitignore' -type f -delete
 find . -maxdepth 1 -not -name '.git' -type d ! -path '.' -exec rm -rf {} + 2>/dev/null || true
 
-cp $OUTPUT_DIR/index.html ./mockup.html
+cp $TEMP_FILE ./mockup.html
 
 # Commit y push
 git add mockup.html
@@ -46,7 +44,7 @@ git push origin gh-pages
 git checkout $BRANCH_ACTUAL
 
 # Limpiar
-rm -rf $OUTPUT_DIR
+rm -f $TEMP_FILE
 
 echo "✅ ¡Publicación completada!"
 echo "📍 Tu sitio estará disponible en: https://$(git config --get remote.origin.url | sed 's/.*://; s/.git$//' | cut -d'/' -f2).github.io/unir-ai-fin-tema-5/"
